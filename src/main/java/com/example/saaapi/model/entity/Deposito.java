@@ -1,6 +1,7 @@
 package com.example.saaapi.model.entity;
 
 import com.example.saaapi.exception.RegraNegocioException;
+import com.example.saaapi.model.validacao.IConsultaCadastroSala;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -47,8 +48,12 @@ public class Deposito {
     } //1
 
     public void adicionarSala(Sala sala) {
+        adicionarSala(sala, salaConsultada -> salaConsultada.getId() != null);
+    } //1
+
+    void adicionarSala(Sala sala, IConsultaCadastroSala consultaCadastro) {
         Objects.requireNonNull(sala, "Sala não informada");
-        if (sala.getId() != null) { //1
+        if (consultaCadastro.estaCadastrada(sala)) { //1
             throw new RegraNegocioException("Sala já cadastrada não pode ser adicionada a outro depósito");
         }
         if (salas.contains(sala)) { //2
