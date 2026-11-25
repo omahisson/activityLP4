@@ -4,19 +4,43 @@ import com.example.saaapi.exception.RegraNegocioException;
 import com.example.saaapi.model.validacao.IConsultaCadastroSala;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class DepositoMockTest {
+class DepositoTest {
 
     @Test
     void deveAdicionarSalaQuandoNaoCadastrada() {
+        Deposito deposito = new Deposito();
+        Sala sala = new Sala();
+
+        deposito.adicionarSala(sala);
+
+        assertEquals(List.of(sala), deposito.getSalas());
+    }
+
+    @Test
+    void deveRejeitarSalaQuandoJaCadastrada() {
+        Deposito deposito = new Deposito();
+        Sala sala = new Sala();
+        sala.setId(1L);
+
+        try {
+            deposito.adicionarSala(sala);
+            fail("Deveria rejeitar uma sala já cadastrada");
+        } catch (RegraNegocioException excecao) {
+            assertEquals("Sala já cadastrada não pode ser adicionada a outro depósito", excecao.getMessage());
+        }
+    }
+
+    @Test
+    void deveAdicionarSalaQuandoNaoCadastradaMock() {
         Deposito deposito = new Deposito();
         Sala sala = new Sala();
         IConsultaCadastroSala consultaCadastro = createMock(IConsultaCadastroSala.class);
@@ -25,29 +49,26 @@ class DepositoMockTest {
 
         deposito.adicionarSala(sala, consultaCadastro);
 
-        assertEquals(1, deposito.getSalas().size());
-        assertTrue(deposito.getSalas().contains(sala));
-        assertSame(sala, deposito.getSalas().get(0));
+        assertEquals(List.of(sala), deposito.getSalas());
         verify(consultaCadastro);
     }
 
     @Test
-    void deveRejeitarSalaQuandoJaCadastrada() {
+    void deveRejeitarSalaQuandoJaCadastradaMock() {
         Deposito deposito = new Deposito();
         Sala sala = new Sala();
         IConsultaCadastroSala consultaCadastro = createMock(IConsultaCadastroSala.class);
+
         expect(consultaCadastro.estaCadastrada(sala)).andReturn(true);
         replay(consultaCadastro);
 
         try {
             deposito.adicionarSala(sala, consultaCadastro);
             fail("Deveria rejeitar uma sala já cadastrada");
-        } catch (Exception excecao) {
-            assertEquals(RegraNegocioException.class, excecao.getClass());
+        } catch (RegraNegocioException excecao) {
             assertEquals("Sala já cadastrada não pode ser adicionada a outro depósito", excecao.getMessage());
         }
 
-        assertTrue(deposito.getSalas().isEmpty());
         verify(consultaCadastro);
     }
 }
