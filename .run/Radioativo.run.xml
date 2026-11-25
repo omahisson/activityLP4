@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Radioativo" type="CompoundRunConfigurationType">
+    <toRun name="Radioativo Backend" type="Application" />
+    <toRun name="Radioativo Frontend" type="js.build_tools.npm" />
+    <method v="2" />
+  </configuration>
+</component>
